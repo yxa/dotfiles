@@ -1,0 +1,13 @@
+# ~/.tmuxinator/pomodoro.yml
+# you can make as many tabs as you wish...
+
+project_name: urlshortener
+project_root: ~/dev/javascript/urlshortener
+pre:
+tabs:
+  - urlshortener:
+      layout: main-vertical
+      panes:
+        - #empty, will just run shell 
+        - #empty, will just run shell
+        - #empty, will just run shell

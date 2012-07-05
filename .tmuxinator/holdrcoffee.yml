@@ -1,0 +1,13 @@
+# ~/.tmuxinator/pomodoro.yml
+# you can make as many tabs as you wish...
+
+project_name: holdrcoffee
+project_root: ~/dev/javascript/jquery-plugins/jquery-holdr-coffee
+pre:
+tabs:
+  - holdrcoffee:
+      layout: main-vertical
+      panes:
+        - #empty, will just run plain bash
+        - #empty, will just run plain bash
+        - #empty, will just run plain bash
