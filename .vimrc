@@ -5,6 +5,14 @@ filetype plugin indent on
 set statusline+=%{exists('g:loaded_fugitive')?fugitive#statusline():''}
 set statusline=%F%m%r%h%w\ [FORMAT=%{&ff}]\ [TYPE=%Y]\ [ASCII=\%03.3b]\ [HEX=\%02.2B]\ [POS=%04l,%04v][%p%%]\ [LEN=%L]
 
+highlight LineNr term=bold cterm=NONE ctermfg=DarkGrey ctermbg=NONE gui=NONE guifg=DarkGrey guibg=NONE
+
+set backspace=indent,eol,start
+set noerrorbells visualbell t_vb=
+autocmd GUIEnter * set visualbell t_vb=
+
+autocmd BufWritePre * :%s/\s\+$//e
+hi Visual  guifg=White guibg=LightBlue gui=none
 
 " show and hide invisible charactes
 nmap <F3> :set list!<CR>
@@ -15,6 +23,32 @@ highlight SpecialKey term=standout ctermbg=yellow guibg=yellow
 
 " Highlight the selected entry in the tree
 let NERDTreeHighlightCursorline=1
+let NERDTreeShowHidden=1
+autocmd VimEnter * NERDTree
+autocmd WinEnter * call s:CloseIfOnlyNerdTreeLeft()
+
+" Close all open buffers on entering a window if the only
+" buffer that's left is the NERDTree buffer
+function! s:CloseIfOnlyNerdTreeLeft()
+  if exists("t:NERDTreeBufName")
+    if bufwinnr(t:NERDTreeBufName) != -1
+      if winnr("$") == 1
+        q
+      endif
+    endif
+  endif
+endfunction
+
+
+set runtimepath^=~/.vim/bundle/ctrlp.vim
+set wildignore+=*/tmp/*,*.so,*.swp,*.zip     " MacOSX/Linux
+set wildignore+=*\\tmp\\*,*.swp,*.zip,*.exe  " Windows
+
+let g:ctrlp_custom_ignore = {
+  \ 'dir':  '\v[\/]\.(git|hg|svn|node_modules)$',
+  \ 'file': '\v\.(exe|so|dll)$',
+  \ 'link': 'some_bad_symbolic_links',
+  \ }
 
 " Use a single click to fold/unfold directories and a double click to open
 let NERDTreeMouseMode=2
@@ -28,6 +62,9 @@ let NERDTreeBookmarksFile=expand("$HOME/.vim/NERDTreeBookmarks")
 
 " Show the bookmarks table on startup
 let NERDTreeShowBookmarks=1
+let g:NERDTreeWinSize = 50
+
+let NERDTreeIgnore = ['\.svn$']
 
 set backupdir=~/vimtmp,.
 set directory=~/vimtmp,.
@@ -35,15 +72,10 @@ set directory=~/vimtmp,.
 let mapleader = ","
 
 " Softtabs, 2 spaces
-set tabstop=2
-set softtabstop=2
-set shiftwidth=2
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
 set expandtab
-
-" Use Ack instead of Grep when available
-if executable("ack")
-  set grepprg=ack\ -H\ --nogroup\ --nocolor
-endif
 
 " Numbers
 set number
@@ -75,7 +107,7 @@ function! Stab()
   endif
   call SummarizeTabs()
 endfunction
-  
+
 function! SummarizeTabs()
   try
     echohl ModeMsg
@@ -108,42 +140,9 @@ endfunction
 nnoremap <F5> :call <SID>StripTrailingWhitespaces()<CR>
 autocmd BufWritePre *.py,*.js :call <SID>StripTrailingWhitespaces()
 
-map <F4> :FufFile **/<CR>
-let g:fuf_file_exclude = '\v\~$' 
-      \ . '|\.(o|png|PNG|JPG|class|CLASS|jpg|exe|bak|swp)$' 
-      \ . '|(^|[/\\])\.(hg|git|bzr)($|[/\\])' 
-      \ . '|(^|[/\\])node_modules[/\\]' 
-      \ . '|(^|[/\\])assets[/\\]' 
-      \ . '|(^|[/\\])target[/\\]' 
-      \ . '|(^|[/\\])external_resources[/\\]' 
-      \ . '|(^|[/\\])plugins[/\\]' 
-      \ . '|.*[/\\]$' 
-
 " enable and disable highlightning
 :set hlsearch
 :noremap <F6> :set hlsearch! hlsearch?<CR>
-
-"vimux plugin mappings
-" Run the current file with rspec
-map <Leader>rb :call RunVimTmuxCommand("clear; rspec " . bufname("%"))<CR>
-
-" Prompt for a command to run
-map rp :PromptVimTmuxCommand<CR>
-
-" Run last command executed by RunVimTmuxCommand
-map <Leader>rl :RunLastVimTmuxCommand<CR>
-
-" Inspect runner pane
-map <Leader>ri :InspectVimTmuxRunner<CR>
-"
-" Close all other tmux panes in current window
-map <Leader>rx :CloseVimTmuxPanes<CR>
-
-" Interrupt any command running in the runner pane
-map <Leader>rs :InterruptVimTmuxRunner<CR>
-
-" abbrevations
-iabbrev myAddr Pilestredet Park 20, 0176, Oslo , Norway
 
 let $VIMHOME = $HOME."/.vim"
 
@@ -155,7 +154,34 @@ nnoremap <c-j> /<+.\{-1,}+><cr>c/+>/e<cr>
 inoremap <c-j> <ESC>/<+.\{-1,}+><cr>c/+>/e<cr>
 match Todo /<+.\++>/
 
-" moving text around
-"CoffeeScript plugin settings
-"ucomment to compile on write
-"au BufWritePost *.coffee silent CoffeeMake!
+autocmd BufReadPre *.js let b:javascript_lib_use_jquery = 1
+autocmd BufReadPre *.js let b:javascript_lib_use_underscore = 1
+autocmd BufReadPre *.js let b:javascript_lib_use_backbone = 1
+
+let jshint2_save = 1
+
+" The Silver Searcher
+if executable('ag')
+  " Use ag over grep
+  set grepprg=ag\ --nogroup\ --nocolor
+
+  " Use ag in CtrlP for listing files. Lightning fast and respects .gitignore
+  let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
+
+  " ag is fast enough that CtrlP doesn't need to cache
+  let g:ctrlp_use_caching = 0
+endif
+
+" bind K to grep word under cursor
+nnoremap K :grep! "\b<C-R><C-W>\b"<CR>:cw<CR>
+
+" bind \ (backward slash) to grep shortcut
+command -nargs=+ -complete=file -bar Ag silent! grep! <args>|cwindow|redraw!
+nnoremap \ :Ag<SPACE>
+
+" formatting settings
+autocmd FileType javascript noremap <buffer>  <c-f> :call JsBeautify()<cr>
+" for html
+autocmd FileType html noremap <buffer> <c-f> :call HtmlBeautify()<cr>
+" for css or scss
+autocmd FileType css noremap <buffer> <c-f> :call CSSBeautify()<cr>
