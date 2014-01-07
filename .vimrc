@@ -5,50 +5,52 @@ filetype plugin indent on
 set statusline+=%{exists('g:loaded_fugitive')?fugitive#statusline():''}
 set statusline=%F%m%r%h%w\ [FORMAT=%{&ff}]\ [TYPE=%Y]\ [ASCII=\%03.3b]\ [HEX=\%02.2B]\ [POS=%04l,%04v][%p%%]\ [LEN=%L]
 
-highlight LineNr term=bold cterm=NONE ctermfg=DarkGrey ctermbg=NONE gui=NONE guifg=DarkGrey guibg=NONE
+set encoding=utf-8
+set shortmess+=I
 
-set backspace=indent,eol,start
-set noerrorbells visualbell t_vb=
-autocmd GUIEnter * set visualbell t_vb=
+let mapleader = ","
+set noswapfile
 
-autocmd BufWritePre * :%s/\s\+$//e
-hi Visual  guifg=White guibg=LightBlue gui=none
+if filereadable(expand("~/.vimrc.bundles"))
+    source ~/.vimrc.bundles
+endif
+
+" Local config
+if filereadable($HOME . "/.vimrc.local")
+  source ~/.vimrc.local
+endif
+
+
+
+" liberal about hidden buffers, enables you to switch between buffers easily
+" when there are hidden buffers
+set hidden
+
+
+" move between windows
+map <C-h> <C-w>h
+map <C-j> <C-w>j
+map <C-k> <C-w>k
+map <C-l> <C-w>l
 
 " show and hide invisible charactes
 nmap <F3> :set list!<CR>
 
-set listchars=eol:$,tab:>-,trail:.,extends:>,precedes:<,nbsp:_
-highlight SpecialKey term=standout ctermbg=yellow guibg=yellow
+" Shortcut to rapidly toggle `set list`
+nmap <leader>l :set list!<CR>
+ 
+" Use the same symbols as TextMate for tabstops and EOLs
+set listchars=tab:▸\ ,eol:¬
+
+"Invisible character colors
+highlight NonText guifg=#4a4a59
+highlight SpecialKey guifg=#4a4a59
+
+
 
 
 " Highlight the selected entry in the tree
 let NERDTreeHighlightCursorline=1
-let NERDTreeShowHidden=1
-autocmd VimEnter * NERDTree
-autocmd WinEnter * call s:CloseIfOnlyNerdTreeLeft()
-
-" Close all open buffers on entering a window if the only
-" buffer that's left is the NERDTree buffer
-function! s:CloseIfOnlyNerdTreeLeft()
-  if exists("t:NERDTreeBufName")
-    if bufwinnr(t:NERDTreeBufName) != -1
-      if winnr("$") == 1
-        q
-      endif
-    endif
-  endif
-endfunction
-
-
-set runtimepath^=~/.vim/bundle/ctrlp.vim
-set wildignore+=*/tmp/*,*.so,*.swp,*.zip     " MacOSX/Linux
-set wildignore+=*\\tmp\\*,*.swp,*.zip,*.exe  " Windows
-
-let g:ctrlp_custom_ignore = {
-  \ 'dir':  '\v[\/]\.(git|hg|svn|node_modules)$',
-  \ 'file': '\v\.(exe|so|dll)$',
-  \ 'link': 'some_bad_symbolic_links',
-  \ }
 
 " Use a single click to fold/unfold directories and a double click to open
 let NERDTreeMouseMode=2
@@ -62,19 +64,15 @@ let NERDTreeBookmarksFile=expand("$HOME/.vim/NERDTreeBookmarks")
 
 " Show the bookmarks table on startup
 let NERDTreeShowBookmarks=1
-let g:NERDTreeWinSize = 50
-
-let NERDTreeIgnore = ['\.svn$']
 
 set backupdir=~/vimtmp,.
 set directory=~/vimtmp,.
 
-let mapleader = ","
 
 " Softtabs, 2 spaces
-set tabstop=4
-set softtabstop=4
-set shiftwidth=4
+set tabstop=2
+set softtabstop=2
+set shiftwidth=2
 set expandtab
 
 " Numbers
@@ -107,7 +105,7 @@ function! Stab()
   endif
   call SummarizeTabs()
 endfunction
-
+  
 function! SummarizeTabs()
   try
     echohl ModeMsg
@@ -138,13 +136,17 @@ function! <SID>StripTrailingWhitespaces()
 endfunction
 
 nnoremap <F5> :call <SID>StripTrailingWhitespaces()<CR>
-autocmd BufWritePre *.py,*.js :call <SID>StripTrailingWhitespaces()
+autocmd BufWritePre *.py,*.js,*.css,*.html :call <SID>StripTrailingWhitespaces()
 
 " enable and disable highlightning
 :set hlsearch
-:noremap <F6> :set hlsearch! hlsearch?<CR>
 
 let $VIMHOME = $HOME."/.vim"
+
+" toggle paste
+map <F6> :set invpaste<CR>:set paste?<CR>
+
+
 
 
 " templates
@@ -154,11 +156,7 @@ nnoremap <c-j> /<+.\{-1,}+><cr>c/+>/e<cr>
 inoremap <c-j> <ESC>/<+.\{-1,}+><cr>c/+>/e<cr>
 match Todo /<+.\++>/
 
-autocmd BufReadPre *.js let b:javascript_lib_use_jquery = 1
-autocmd BufReadPre *.js let b:javascript_lib_use_underscore = 1
-autocmd BufReadPre *.js let b:javascript_lib_use_backbone = 1
-
-let jshint2_save = 1
+map <c-f> :call JsBeautify()<cr>
 
 " The Silver Searcher
 if executable('ag')
@@ -179,9 +177,10 @@ nnoremap K :grep! "\b<C-R><C-W>\b"<CR>:cw<CR>
 command -nargs=+ -complete=file -bar Ag silent! grep! <args>|cwindow|redraw!
 nnoremap \ :Ag<SPACE>
 
-" formatting settings for js,html,css
-autocmd FileType javascript noremap <buffer>  <c-f> :call JsBeautify()<cr>
-" for html
-autocmd FileType html noremap <buffer> <c-f> :call HtmlBeautify()<cr>
-" for css or scss
-autocmd FileType css noremap <buffer> <c-f> :call CSSBeautify()<cr>
+"vim arline plugin configurations
+let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#tabline#left_sep = ' '
+let g:airline#extensions#tabline#left_alt_sep = '|'
+
+" move between buffers
+map <C-n> :bnext<cr>
