@@ -19,7 +19,7 @@ Bundle 'Shutnik/jshint2.vim'
 Bundle 'scrooloose/nerdtree'
 Bundle 'bling/vim-airline'
 Bundle 'tpope/vim-commentary'
-
+Bundle 'mhinz/vim-signify'
 
 if filereadable(expand("~/.vimrc.bundles.local"))
   source ~/.vimrc.bundles.local
