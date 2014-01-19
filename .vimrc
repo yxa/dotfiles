@@ -65,6 +65,10 @@ let NERDTreeBookmarksFile=expand("$HOME/.vim/NERDTreeBookmarks")
 " Show the bookmarks table on startup
 let NERDTreeShowBookmarks=1
 
+" Always open nerdtree
+autocmd vimenter * if !argc() | NERDTree | endif
+
+
 set backupdir=~/vimtmp,.
 set directory=~/vimtmp,.
 
