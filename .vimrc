@@ -201,3 +201,7 @@ let g:airline#extensions#tabline#left_alt_sep = '|'
 
 " move between buffers
 map <C-n> :bnext<cr>
+
+"http://www.catonmat.net/blog/sudo-vim/
+cnoremap sudow w !sudo tee % >/dev/null
+
