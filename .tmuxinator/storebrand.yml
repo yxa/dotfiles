@@ -1,0 +1,13 @@
+# ~/.tmuxinator/pomodoro.yml
+# you can make as many tabs as you wish...
+
+project_name: Tmuxinator
+project_root: ~/dev/bedriftsportalen
+pre:
+tabs:
+  - anthill:
+      layout: main-vertical
+      panes:
+        - #empty, will just run plain bash
+        - #empty, will just run plain bash
+        - #empty, will just run plain bash

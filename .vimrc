@@ -7,6 +7,7 @@ set statusline=%F%m%r%h%w\ [FORMAT=%{&ff}]\ [TYPE=%Y]\ [ASCII=\%03.3b]\ [HEX=\%0
 
 set encoding=utf-8
 set shortmess+=I
+set backspace=2
 
 let mapleader = ","
 set noswapfile
